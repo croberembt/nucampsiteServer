@@ -1,14 +1,14 @@
-const express = require('express');
-const bodyParser = require('body-parser'); 
-const Campsite = require('../models/campsite'); 
-const { NetworkAuthenticationRequire } = require('http-errors');
+const express = require('express'); // using express middleware
+const bodyParser = require('body-parser'); // using body-parser middleware
+const Campsite = require('../models/campsite');  // using Campsite model
 
-const campsiteRouter = express.Router();
 
-campsiteRouter.use(bodyParser.json()); 
+const campsiteRouter = express.Router(); 
 
-campsiteRouter.route('/')
-    .get((req, res, next) => {
+campsiteRouter.use(bodyParser.json()); // declaring that body-parser middleware is being used
+
+campsiteRouter.route('/') 
+    .get((req, res, next) => { // get request which is getting any/all documents that are in the collection
         Campsite.find()
         .then(campsites => {
             res.statusCode = 200;
@@ -17,7 +17,7 @@ campsiteRouter.route('/')
         })
         .catch(err => next(err)); 
     })
-    .post((req, res, next) => {
+    .post((req, res, next) => { // creating a new document in the campsite collection
         Campsite.create(req.body)
         .then(campsite => {
             console.log('Campsite Created ', campsite);
@@ -27,11 +27,11 @@ campsiteRouter.route('/')
         })
         .catch(err => next(err)); 
     })
-    .put((req, res) => {
+    .put((req, res) => { // put request that is not supported
         res.statusCode = 403;
         res.end('PUT operation not supported on /campsites');
     })
-    .delete((req, res, next) => {
+    .delete((req, res, next) => { // delete request that is deleting any documents in the campsite collection
         Campsite.deleteMany()
         .then(response => {
             res.statusCode = 200;
@@ -42,8 +42,8 @@ campsiteRouter.route('/')
     })
 
 
-campsiteRouter.route('/:campsiteId')
-    .get((req, res, next) => {
+campsiteRouter.route('/:campsiteId') 
+    .get((req, res, next) => { // get request that is getting all campsites with an id matching the requested id
         Campsite.findById(req.params.campsiteId)
         .then(campsite => {
             res.statusCode = 200;
@@ -52,11 +52,11 @@ campsiteRouter.route('/:campsiteId')
         })
         .catch(err => next(err));
     })
-    .post((req, res) => {
+    .post((req, res) => { // post request that is not supported
         res.statusCode = 403;
         res.end(`POST operation not supported on /campsites/${req.params.campsiteId}`); 
     })
-    .put((req, res, next) => {
+    .put((req, res, next) => { // put request that is updating any campsites that have an id matching the id requested
         Campsite.findByIdAndUpdate(req.params.campsiteId, {
             $set: req.body
         }, { new: true })
@@ -67,7 +67,7 @@ campsiteRouter.route('/:campsiteId')
         })
         .catch(err => next(err)); 
     })
-    .delete((req, res, next) => {
+    .delete((req, res, next) => { // delete request that is deleting any campsites that have an id matching the id requested
         Campsite.findByIdAndDelete(req.params.campsiteId)
         .then(response => {
             res.statusCode = 200;
@@ -77,8 +77,8 @@ campsiteRouter.route('/:campsiteId')
         .catch(err => next(err)); 
     })
 
-campsiteRouter.route('/:campsiteId/comments')
-.get((req, res, next) => {
+campsiteRouter.route('/:campsiteId/comments') 
+.get((req, res, next) => { // get request that is getting any comments that belong to the campsite that has the id being requested
     Campsite.findById(req.params.campsiteId)
     .then(campsite => {
         if(campsite) {
@@ -93,7 +93,7 @@ campsiteRouter.route('/:campsiteId/comments')
     })
     .catch(err => next(err)); 
 })
-.post((req, res, next) => {
+.post((req, res, next) => { // post request that is creating a new comment that is added to the campsite matching the id being requested
     Campsite.findById(req.params.campsiteId)
     .then(campsite => {
         if (campsite) {
@@ -113,11 +113,11 @@ campsiteRouter.route('/:campsiteId/comments')
     })
     .catch(err => next(err)); 
 })
-.put((req, res) => {
+.put((req, res) => { // put request that is not supported
     res.statusCode = 403;
     res.end(`PUT operation not supported on /campsites/${req.params.campsiteId}/comments`); 
 })
-.delete((req, res, next) => {
+.delete((req, res, next) => { // delete request that is deleting any comments that belong to the campsite that has the id being requested
     Campsite.findById(req.params.campsiteId)
     .then(campsite => {
         if (campsite) {
@@ -141,7 +141,7 @@ campsiteRouter.route('/:campsiteId/comments')
 });
 
 campsiteRouter.route('/:campsiteId/comments/:commentId')
-.get((req, res, next) => {
+.get((req, res, next) => { // get request that is getting the comment that matches the id of the comment being requested from the campsite with specific id being requested as well
     Campsite.findById(req.params.campsiteId)
     .then(campsite => {
         if (campsite && campsite.comments.id(req.params.commentId)) {
@@ -160,11 +160,11 @@ campsiteRouter.route('/:campsiteId/comments/:commentId')
     })
     .catch(err => next(err));
 })
-.post((req, res) => {
+.post((req, res) => { // post request that is not supported 
     res.statusCode = 403;
     res.end(`POST oparation not supported on /campsites/${req.params.campsiteId}/comments/${req.params.commentId}`); 
 })
-.put((req, res, next) => {
+.put((req, res, next) => { // post request that is updating the comment (can be the rating and/or the body of the comment) that matches the id of the comment being requested from the campsite with specific id being requested as well
     Campsite.findById(req.params.campsiteId)
     .then(campsite => {
         if (campsite && campsite.comments.id(req.params.commentId)) {
@@ -193,7 +193,7 @@ campsiteRouter.route('/:campsiteId/comments/:commentId')
     })
     .catch(err => next(err)); 
 })
-.delete((req, res, next) => {
+.delete((req, res, next) => { // delete request that is deleting the comment with an id matching the id requested that belongs to the comment with the id being requested
     Campsite.findById(req.params.campsiteId)
     .then(campsite => {
         if (campsite && campsite.comments.id(req.params.commentId)) {
