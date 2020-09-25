@@ -11,6 +11,7 @@ campsiteRouter.use(bodyParser.json()); // declaring that body-parser middleware 
 campsiteRouter.route('/') 
     .get((req, res, next) => { // get request which is getting any/all documents that are in the collection
         Campsite.find()
+        .populate('comments.author')
         .then(campsites => {
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json');
@@ -46,6 +47,7 @@ campsiteRouter.route('/')
 campsiteRouter.route('/:campsiteId') 
     .get((req, res, next) => { // get request that is getting all campsites with an id matching the requested id
         Campsite.findById(req.params.campsiteId)
+        .populate('comments.author')
         .then(campsite => {
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json');
@@ -81,6 +83,7 @@ campsiteRouter.route('/:campsiteId')
 campsiteRouter.route('/:campsiteId/comments') 
 .get((req, res, next) => { // get request that is getting any comments that belong to the campsite that has the id being requested
     Campsite.findById(req.params.campsiteId)
+    .populate('comments.author')
     .then(campsite => {
         if(campsite) {
             res.statusCode = 200;
@@ -98,6 +101,7 @@ campsiteRouter.route('/:campsiteId/comments')
     Campsite.findById(req.params.campsiteId)
     .then(campsite => {
         if (campsite) {
+            req.body.author = req.user._id;
             campsite.comments.push(req.body);
             campsite.save()
             .then(campsite => {
@@ -144,6 +148,7 @@ campsiteRouter.route('/:campsiteId/comments')
 campsiteRouter.route('/:campsiteId/comments/:commentId')
 .get((req, res, next) => { // get request that is getting the comment that matches the id of the comment being requested from the campsite with specific id being requested as well
     Campsite.findById(req.params.campsiteId)
+    .populate('comments.author')
     .then(campsite => {
         if (campsite && campsite.comments.id(req.params.commentId)) {
             res.statusCode = 200;
