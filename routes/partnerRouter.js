@@ -1,6 +1,7 @@
 const express = require('express'); // using express middleware
 const bodyParser = require('body-parser'); // using body-parser middleware
 const Partner = require('../models/partner');  // using Partner model
+const authenticate = require('../authenticate'); 
 
 
 const partnerRouter = express.Router(); 
@@ -17,7 +18,7 @@ partnerRouter.route('/')
         })
         .catch(err => next(err)); 
     })
-    .post((req, res, next) => { // creating a new document in the partner collection
+    .post(authenticate.verifyUser, (req, res, next) => { // creating a new document in the partner collection
         Partner.create(req.body)
         .then(partner => {
             console.log('Partner Created ', partner);
@@ -27,11 +28,11 @@ partnerRouter.route('/')
         })
         .catch(err => next(err)); 
     })
-    .put((req, res) => { // put request that is not supported
+    .put(authenticate.verifyUser, (req, res) => { // put request that is not supported
         res.statusCode = 403;
         res.end('PUT operation not supported on /partners');
     })
-    .delete((req, res, next) => { // delete request that is deleting any documents in the partner collection
+    .delete(authenticate.verifyUser, (req, res, next) => { // delete request that is deleting any documents in the partner collection
         Partner.deleteMany()
         .then(response => {
             res.statusCode = 200;
@@ -52,11 +53,11 @@ partnerRouter.route('/:partnerId')
         })
         .catch(err => next(err));
     })
-    .post((req, res) => { // post request that is not supported
+    .post(authenticate.verifyUser, (req, res) => { // post request that is not supported
         res.statusCode = 403;
         res.end(`POST operation not supported on /partners/${req.params.partnerId}`); 
     })
-    .put((req, res, next) => { // put request that is updating any partners that have an id matching the id requested
+    .put(authenticate.verifyUser, (req, res, next) => { // put request that is updating any partners that have an id matching the id requested
         Partner.findByIdAndUpdate(req.params.partnerId, {
             $set: req.body
         }, { new: true })
@@ -67,7 +68,7 @@ partnerRouter.route('/:partnerId')
         })
         .catch(err => next(err)); 
     })
-    .delete((req, res, next) => { // delete request that is deleting any partners that have an id matching the id requested
+    .delete(authenticate.verifyUser, (req, res, next) => { // delete request that is deleting any partners that have an id matching the id requested
         Partner.findByIdAndDelete(req.params.partnerId)
         .then(response => {
             res.statusCode = 200;

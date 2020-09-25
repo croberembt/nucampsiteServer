@@ -1,6 +1,7 @@
 const express = require('express'); // using express middleware
 const bodyParser = require('body-parser'); // using body-parser middleware
 const Promotion = require('../models/promotion');  // using Promotion model
+const authenticate = require('../authenticate'); 
 
 
 const promotionRouter = express.Router(); 
@@ -17,7 +18,7 @@ promotionRouter.route('/')
         })
         .catch(err => next(err)); 
     })
-    .post((req, res, next) => { // creating a new document in the promotion collection
+    .post(authenticate.verifyUser, (req, res, next) => { // creating a new document in the promotion collection
         Promotion.create(req.body)
         .then(promotion => {
             console.log('Promotion Created ', promotion);
@@ -27,11 +28,11 @@ promotionRouter.route('/')
         })
         .catch(err => next(err)); 
     })
-    .put((req, res) => { // put request that is not supported
+    .put(authenticate.verifyUser, (req, res) => { // put request that is not supported
         res.statusCode = 403;
         res.end('PUT operation not supported on /promotions');
     })
-    .delete((req, res, next) => { // delete request that is deleting any documents in the promotion collection
+    .delete(authenticate.verifyUser, (req, res, next) => { // delete request that is deleting any documents in the promotion collection
         Promotion.deleteMany()
         .then(response => {
             res.statusCode = 200;
@@ -52,11 +53,11 @@ promotionRouter.route('/:promotionId')
         })
         .catch(err => next(err));
     })
-    .post((req, res) => { // post request that is not supported
+    .post(authenticate.verifyUser, (req, res) => { // post request that is not supported
         res.statusCode = 403;
         res.end(`POST operation not supported on /promotions/${req.params.promotionId}`); 
     })
-    .put((req, res, next) => { // put request that is updating any promotions that have an id matching the id requested
+    .put(authenticate.verifyUser, (req, res, next) => { // put request that is updating any promotions that have an id matching the id requested
         Promotion.findByIdAndUpdate(req.params.promotionId, {
             $set: req.body
         }, { new: true })
@@ -67,7 +68,7 @@ promotionRouter.route('/:promotionId')
         })
         .catch(err => next(err)); 
     })
-    .delete((req, res, next) => { // delete request that is deleting any promotions that have an id matching the id requested
+    .delete(authenticate.verifyUser, (req, res, next) => { // delete request that is deleting any promotions that have an id matching the id requested
         Promotion.findByIdAndDelete(req.params.promotionId)
         .then(response => {
             res.statusCode = 200;
