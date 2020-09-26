@@ -18,7 +18,7 @@ partnerRouter.route('/')
         })
         .catch(err => next(err)); 
     })
-    .post(authenticate.verifyUser, (req, res, next) => { // creating a new document in the partner collection
+    .post(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => { // creating a new document in the partner collection
         Partner.create(req.body)
         .then(partner => {
             console.log('Partner Created ', partner);
@@ -32,7 +32,7 @@ partnerRouter.route('/')
         res.statusCode = 403;
         res.end('PUT operation not supported on /partners');
     })
-    .delete(authenticate.verifyUser, (req, res, next) => { // delete request that is deleting any documents in the partner collection
+    .delete(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => { // delete request that is deleting any documents in the partner collection
         Partner.deleteMany()
         .then(response => {
             res.statusCode = 200;
@@ -57,7 +57,7 @@ partnerRouter.route('/:partnerId')
         res.statusCode = 403;
         res.end(`POST operation not supported on /partners/${req.params.partnerId}`); 
     })
-    .put(authenticate.verifyUser, (req, res, next) => { // put request that is updating any partners that have an id matching the id requested
+    .put(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => { // put request that is updating any partners that have an id matching the id requested
         Partner.findByIdAndUpdate(req.params.partnerId, {
             $set: req.body
         }, { new: true })
@@ -68,7 +68,7 @@ partnerRouter.route('/:partnerId')
         })
         .catch(err => next(err)); 
     })
-    .delete(authenticate.verifyUser, (req, res, next) => { // delete request that is deleting any partners that have an id matching the id requested
+    .delete(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => { // delete request that is deleting any partners that have an id matching the id requested
         Partner.findByIdAndDelete(req.params.partnerId)
         .then(response => {
             res.statusCode = 200;

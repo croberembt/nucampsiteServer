@@ -6,6 +6,7 @@ const ExtractJwt = require('passport-jwt').ExtractJwt; // import extract jwt mod
 const jwt = require('jsonwebtoken'); // used to create, sign and verify tokens
 
 const config = require('./config.js'); // import config file
+const { NotExtended } = require('http-errors');
 
 exports.local = passport.use(new LocalStrategy(User.authenticate())); 
 passport.serializeUser(User.serializeUser());
@@ -38,3 +39,18 @@ exports.jwtPassport = passport.use(
 );
 
 exports.verifyUser = passport.authenticate('jwt', {session: false}); 
+
+
+exports.verifyAdmin = ((req, res, next) => {
+    console.log(req.user.admin);
+    if (req.user.admin === true) {
+        return next();
+    } else {
+        err = new Error('You are not authorized to perform this operation!');
+        err.status = 403;
+        return next(err);
+    }
+});
+
+
+

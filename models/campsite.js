@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 require('mongoose-currency').loadType(mongoose); 
 const Currency = mongoose.Types.Currency; 
 
-const commentSchema = new Schema({
+const commentSchema = new Schema({ // this is a sub document
     rating: {
         type: Number,
         min: 1,
@@ -23,7 +23,7 @@ const commentSchema = new Schema({
     timestamps: true 
 });
 
-const campsiteSchema = new Schema({
+const campsiteSchema = new Schema({ // this is a document
     name: {
         type: String,
         required: true,
