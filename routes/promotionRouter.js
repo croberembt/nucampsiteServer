@@ -2,13 +2,15 @@ const express = require('express'); // using express middleware
 const bodyParser = require('body-parser'); // using body-parser middleware
 const Promotion = require('../models/promotion');  // using Promotion model
 const authenticate = require('../authenticate'); 
+const cors = require('./cors');
 
 const promotionRouter = express.Router(); 
 
 promotionRouter.use(bodyParser.json()); // declaring that body-parser middleware is being used
 
 promotionRouter.route('/') 
-    .get((req, res, next) => { // get request which is getting any/all documents that are in the collection
+    .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
+    .get(cors.cors, (req, res, next) => { // get request which is getting any/all documents that are in the collection
         Promotion.find()
         .then(promotions => {
             res.statusCode = 200;
@@ -17,7 +19,7 @@ promotionRouter.route('/')
         })
         .catch(err => next(err)); 
     })
-    .post(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => { // creating a new document in the promotion collection
+    .post(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => { // creating a new document in the promotion collection
         Promotion.create(req.body)
         .then(promotion => {
             console.log('Promotion Created ', promotion);
@@ -27,11 +29,11 @@ promotionRouter.route('/')
         })
         .catch(err => next(err)); 
     })
-    .put(authenticate.verifyUser, (req, res) => { // put request that is not supported
+    .put(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res) => { // put request that is not supported
         res.statusCode = 403;
         res.end('PUT operation not supported on /promotions');
     })
-    .delete(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => { // delete request that is deleting any documents in the promotion collection
+    .delete(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => { // delete request that is deleting any documents in the promotion collection
         Promotion.deleteMany()
         .then(response => {
             res.statusCode = 200;
@@ -43,7 +45,8 @@ promotionRouter.route('/')
 
 
 promotionRouter.route('/:promotionId') 
-    .get((req, res, next) => { // get request that is getting all promotions with an id matching the requested id
+    .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
+    .get(cors.cors, (req, res, next) => { // get request that is getting all promotions with an id matching the requested id
         Promotion.findById(req.params.promotionId)
         .then(promotion => {
             res.statusCode = 200;
@@ -52,11 +55,11 @@ promotionRouter.route('/:promotionId')
         })
         .catch(err => next(err));
     })
-    .post(authenticate.verifyUser, (req, res) => { // post request that is not supported
+    .post(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res) => { // post request that is not supported
         res.statusCode = 403;
         res.end(`POST operation not supported on /promotions/${req.params.promotionId}`); 
     })
-    .put(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => { // put request that is updating any promotions that have an id matching the id requested
+    .put(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => { // put request that is updating any promotions that have an id matching the id requested
         Promotion.findByIdAndUpdate(req.params.promotionId, {
             $set: req.body
         }, { new: true })
@@ -67,7 +70,7 @@ promotionRouter.route('/:promotionId')
         })
         .catch(err => next(err)); 
     })
-    .delete(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => { // delete request that is deleting any promotions that have an id matching the id requested
+    .delete(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => { // delete request that is deleting any promotions that have an id matching the id requested
         Promotion.findByIdAndDelete(req.params.promotionId)
         .then(response => {
             res.statusCode = 200;
