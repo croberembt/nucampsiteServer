@@ -11,6 +11,7 @@ const usersRouter = require('./routes/users');
 const campsiteRouter = require('./routes/campsiteRouter');
 const promotionRouter = require('./routes/promotionRouter');
 const partnerRouter = require('./routes/partnerRouter');
+const favoriteRouter = require('./routes/favoriteRouter');
 
 const uploadRouter = require('./routes/uploadRouter'); 
 
@@ -63,6 +64,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/campsites', campsiteRouter);
 app.use('/promotions', promotionRouter);
 app.use('/partners', partnerRouter); 
+app.use('/favorites', favoriteRouter);
 
 app.use('/imageUpload', uploadRouter);
 
